@@ -25,7 +25,6 @@ import { CustomerCreateInput } from "./CustomerCreateInput";
 import { Customer } from "./Customer";
 import { CustomerFindManyArgs } from "./CustomerFindManyArgs";
 import { CustomerWhereUniqueInput } from "./CustomerWhereUniqueInput";
-import { CustomerUpdateInput } from "./CustomerUpdateInput";
 import { OrderFindManyArgs } from "../../order/base/OrderFindManyArgs";
 import { Order } from "../../order/base/Order";
 import { OrderWhereUniqueInput } from "../../order/base/OrderWhereUniqueInput";
@@ -152,60 +151,6 @@ export class CustomerControllerBase {
       );
     }
     return result;
-  }
-
-  @common.UseInterceptors(AclValidateRequestInterceptor)
-  @common.Patch("/:id")
-  @swagger.ApiOkResponse({ type: Customer })
-  @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
-  @nestAccessControl.UseRoles({
-    resource: "Customer",
-    action: "update",
-    possession: "any",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
-  async updateCustomer(
-    @common.Param() params: CustomerWhereUniqueInput,
-    @common.Body() data: CustomerUpdateInput
-  ): Promise<Customer | null> {
-    try {
-      return await this.service.updateCustomer({
-        where: params,
-        data: {
-          ...data,
-
-          address: data.address
-            ? {
-                connect: data.address,
-              }
-            : undefined,
-        },
-        select: {
-          id: true,
-          createdAt: true,
-          updatedAt: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          phone: true,
-
-          address: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      });
-    } catch (error) {
-      if (isRecordNotFoundError(error)) {
-        throw new errors.NotFoundException(
-          `No resource was found for ${JSON.stringify(params)}`
-        );
-      }
-      throw error;
-    }
   }
 
   @common.Delete("/:id")
